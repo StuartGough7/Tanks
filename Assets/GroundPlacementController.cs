@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using DG.Tweening;
 
 public class GroundPlacementController : MonoBehaviour {
   [SerializeField]
@@ -54,8 +55,8 @@ public class GroundPlacementController : MonoBehaviour {
     if (Input.GetAxis("Mouse ScrollWheel") != 0) {
       float direction = Input.GetAxis("Mouse ScrollWheel") > 0 ? 1f : -1f;
       newRotation *= Quaternion.Euler(Vector3.up * direction * rotationSpeed);
+      currentPlaceableObject.transform.DORotateQuaternion(newRotation, rotationTime).SetEase(Ease.OutBounce, 1.1f); // = Quaternion.Lerp(currentPlaceableObject.transform.rotation, newRotation, Time.deltaTime * rotationTime);
     }
-    currentPlaceableObject.transform.rotation = Quaternion.Lerp(currentPlaceableObject.transform.rotation, newRotation, Time.deltaTime * rotationTime);
   }
 
   private void ReleaseIfClicked() {
