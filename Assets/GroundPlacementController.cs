@@ -5,15 +5,19 @@ public class GroundPlacementController : MonoBehaviour {
   private GameObject placeableObjectPrefab;
 
   [SerializeField]
+  private float rotationSpeed;
+  [SerializeField]
+  private float rotationTime;
+
+  [SerializeField]
   private MeshCollider groundCollider;
 
   [SerializeField]
   private KeyCode newObjectHotkey = KeyCode.A;
 
   private GameObject currentPlaceableObject;
+  private Quaternion newRotation;
 
-
-  private float mouseWheelRotation;
 
   private void Update() {
     HandleNewObjectHotkey();
@@ -31,6 +35,7 @@ public class GroundPlacementController : MonoBehaviour {
         Destroy(currentPlaceableObject);
       } else {
         currentPlaceableObject = Instantiate(placeableObjectPrefab);
+        newRotation = currentPlaceableObject.transform.rotation;
       }
     }
   }
@@ -41,14 +46,16 @@ public class GroundPlacementController : MonoBehaviour {
     RaycastHit hitInfo;
     if (groundCollider.Raycast(ray, out hitInfo, 100f)) {
       currentPlaceableObject.transform.position = hitInfo.point;
-      currentPlaceableObject.transform.rotation = Quaternion.FromToRotation(Vector3.up, hitInfo.normal);
+      // currentPlaceableObject.transform.rotation = Quaternion.FromToRotation(Vector3.up, hitInfo.normal);
     }
   }
 
   private void RotateFromMouseWheel() {
-    Debug.Log(Input.mouseScrollDelta);
-    mouseWheelRotation += Input.mouseScrollDelta.y;
-    currentPlaceableObject.transform.Rotate(Vector3.up, mouseWheelRotation * 10f);
+    if (Input.GetAxis("Mouse ScrollWheel") != 0) {
+      float direction = Input.GetAxis("Mouse ScrollWheel") > 0 ? 1f : -1f;
+      newRotation *= Quaternion.Euler(Vector3.up * direction * rotationSpeed);
+    }
+    currentPlaceableObject.transform.rotation = Quaternion.Lerp(currentPlaceableObject.transform.rotation, newRotation, Time.deltaTime * rotationTime);
   }
 
   private void ReleaseIfClicked() {
